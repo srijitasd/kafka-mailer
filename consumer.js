@@ -2,13 +2,13 @@ const { kafka } = require("./kafkaClient");
 const { MongoClient } = require("mongodb");
 var cron = require("node-cron");
 const nodemailer = require("nodemailer");
-const getISOWeek = require("date-fns").getISOWeek;
+const { getISOWeek } = require("date-fns");
 
 require("dotenv").config();
 
 const client = new MongoClient(process.env.MONGO_URI);
 const db = client.db(process.env.DB_NAME);
-const collection = db.collection(process.env.COLLECTION_NAME);
+const collection = db.collection("weeklyDigest");
 
 const consumer = kafka.consumer({ groupId: "digest-email-group" });
 
@@ -21,7 +21,6 @@ const transporter = nodemailer.createTransport({
 });
 
 const aggregateAndStore = async (data) => {
-  console.log(data);
   await collection.bulkWrite(data);
 };
 
@@ -47,7 +46,6 @@ const runConsumer = async () => {
 
         const notification = JSON.parse(message.value.toString());
         // Process the notification here (e.g., accumulate for batch send)
-        console.log(`Received notification: ${JSON.stringify(notification)}`);
 
         updates.push({
           updateOne: {
