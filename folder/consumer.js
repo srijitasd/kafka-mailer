@@ -45,7 +45,6 @@ const runConsumer = async () => {
         if (!isRunning() || isStale()) break;
 
         const notification = JSON.parse(message.value.toString());
-        console.log("notification:", notification);
         // Process the notification here (e.g., accumulate for batch send)
 
         updates.push({
@@ -76,11 +75,13 @@ runConsumer();
 cron.schedule("* * * * * 6", async () => {
   const date = new Date();
   const currentWeek = getISOWeek(date);
-  const followerDataForTheWeek = await collection
+  const usersDataForTheWeek = await collection
     .find({ week: currentWeek })
     .toArray();
 
-  for (const userData of followerDataForTheWeek) {
+  console.log(usersDataForTheWeek);
+
+  for (const userData of usersDataForTheWeek) {
     transporter.sendMail(
       {
         from: "weekly digest",
